@@ -14,6 +14,11 @@ async function createPost(fields) {
     error.statusCode = 422;
     throw error;
   }
+  if (fields.authorId === undefined) {
+    const error = new Error('authorId is required');
+    error.statusCode = 422;
+    throw error;
+  }
   return postRepository.create({
     title: fields.title,
     body: fields.body || '',
