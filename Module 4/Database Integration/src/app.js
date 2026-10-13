@@ -11,7 +11,19 @@ app.patch('/posts/:id', postController.update);
 app.delete('/posts/:id', postController.remove);
 
 app.use((error, req, res, next) => {
-  res.status(error.statusCode || 500).json({ error: error.message });
+  if (error.code === 'P2002') {
+    return res.status(409).json({ error: 'A record with these values already exists' });
+  }
+  if (error.code === 'P2003') {
+    return res.status(409).json({ error: 'This change conflicts with related data' });
+  }
+  if (error.code === 'P2025') {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+
+  const status = error.statusCode || 500;
+  if (status >= 500) console.error(error);
+  res.status(status).json({ error: status >= 500 ? 'Internal server error' : error.message });
 });
 
 if (require.main === module) {
